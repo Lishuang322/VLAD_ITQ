@@ -2,11 +2,11 @@ clear,clc,
 close all
 %parameter settings
 CENTROID_NUM = 64 ;%number of visual words used in vlad
-CODE_LENGTH = 256 ;%binary code length
-repo = '/home/hulishuang/workspace/vlad/pictures/';%directory of images which need to encode
+%CODE_LENGTH = 256 ;%binary code length
+repo = '/data/data-hulishuang/img-dataset/oxford/';%directory of images which need to encode
 filelist = dir([repo '*.jpg']);%suffix for your input images
-centroid_path = 'clust_flickr60_k100.fvecs' ;%directory of centroids
-output_path = 'image_code_256.csv';%output image name
+%centroid_path = 'clust_flickr60_k100.fvecs' ;%directory of centroids
+%output_path = 'paris_c64_l256.csv';%output image name
 
 %step1:extract sift discriptors
 sift_descr = {};
@@ -20,9 +20,14 @@ for i = 1:size(filelist, 1)
 end
 
 %step2:load visual dictionary
-v = fvecs_read (centroid_path);
-centroids = v(1:CENTROID_NUM,:);
-centroids = centroids';
+%v = fvecs_read (centroid_path);
+%centroids = v(1:CENTROID_NUM,:);
+%centroids = centroids';
+%kdtree = vl_kdtreebuild(centroids);
+
+%step2:cluster the SIFT features of all images using k-means clustering
+all_descr = single([sift_descr{:}]);
+centroids = vl_kmeans(all_descr, CENTROID_NUM);
 kdtree = vl_kdtreebuild(centroids);
 
 %step3:comput vlad discriptors
@@ -40,7 +45,23 @@ for k=1:numel(sift_descr)
 end
 
 %step4:comput ITQ binary code
-code=compressITQ(enc',CODE_LENGTH);
-code_cell = num2cell(code);
-output = [image_name' code_cell];
-cell2csv(output_path,output,' ');
+code_128=compressITQ(enc',128);
+code_256=compressITQ(enc',256);
+code_512=compressITQ(enc',512);
+
+code_cell_128 = num2cell(code_128);
+code_cell_256 = num2cell(code_256);
+code_cell_512 = num2cell(code_512);
+
+output_128 = [image_name' code_cell_128];
+output_256 = [image_name' code_cell_256];
+output_512 = [image_name' code_cell_512];
+
+
+%%%%%need modify
+cell2csv('oxford_c64_l128.csv',output_128,' ');
+cell2csv('oxford_c64_l256.csv',output_256,' ');
+cell2csv('oxford_c64_l512.csv',output_512,' ');
+
+
+
