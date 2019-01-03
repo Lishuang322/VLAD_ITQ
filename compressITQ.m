@@ -24,4 +24,4 @@ XX = X*pc;
 % default is 50 iterations
 % C is the output code
 % R is the rotation found by ITQ
-[C, R] = ITQ(XX,100);
+[C, R] = ITQ(XX,50);

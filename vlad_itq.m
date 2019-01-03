@@ -3,7 +3,7 @@ close all
 %parameter settings
 CENTROID_NUM = 64 ;%number of visual words used in vlad
 %CODE_LENGTH = 256 ;%binary code length
-repo = '/data/data-hulishuang/img-dataset/oxford/';%directory of images which need to encode
+repo = '/data/data-hulishuang/img-dataset/paris/picture/';%directory of images which need to encode
 filelist = dir([repo '*.jpg']);%suffix for your input images
 %centroid_path = 'clust_flickr60_k100.fvecs' ;%directory of centroids
 %output_path = 'paris_c64_l256.csv';%output image name
@@ -27,7 +27,7 @@ end
 
 %step2:cluster the SIFT features of all images using k-means clustering
 all_descr = single([sift_descr{:}]);
-centroids = vl_kmeans(all_descr, CENTROID_NUM);
+centroids = vl_kmeans(all_descr, CENTROID_NUM,'Initialization','plusplus');
 kdtree = vl_kdtreebuild(centroids);
 
 %step3:comput vlad discriptors
@@ -41,7 +41,7 @@ for k=1:numel(sift_descr)
     assignments(sub2ind(size(assignments), nn, 1:numel(nn))) = 1;
 
     % Encode using VLAD
-    enc(:, k) = vl_vlad(single(sift_descr{k}), centroids, assignments);
+    enc(:, k) = vl_vlad(single(sift_descr{k}), centroids, assignments,'SquareRoot');
 end
 
 %step4:comput ITQ binary code
@@ -59,9 +59,9 @@ output_512 = [image_name' code_cell_512];
 
 
 %%%%%need modify
-cell2csv('oxford_c64_l128.csv',output_128,' ');
-cell2csv('oxford_c64_l256.csv',output_256,' ');
-cell2csv('oxford_c64_l512.csv',output_512,' ');
+cell2csv('/data/data-hulishuang/binarycode/paris/paris_c64_l128.csv',output_128,' ');
+cell2csv('/data/data-hulishuang/binarycode/paris/paris_c64_l256.csv',output_256,' ');
+cell2csv('/data/data-hulishuang/binarycode/paris/paris_c64_l512.csv',output_512,' ');
 
 
 
